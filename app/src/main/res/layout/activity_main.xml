@@ -79,6 +79,37 @@
             android:layout_weight="1"
             android:text="Payment" />
     </LinearLayout>
+        <LinearLayout
+            android:id="@+id/layout_for_buttons_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/button9"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:text="HTTP GET" />
+            <Button
+                android:id="@+id/button10"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:text="Tic-Tac" />
+            <Button
+                android:id="@+id/button11"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:text="Skoczek" />
+            <Button
+                android:id="@+id/button12"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:text="skoczek 2" />
+
+        </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout"

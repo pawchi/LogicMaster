@@ -27,6 +27,10 @@
         <activity android:name=".MainActivity_Gridview_ex_33"/>
         <activity android:name=".SimpleListView"/>
         <activity android:name=".Payment"/>
+        <activity android:name=".HTTP_Get"/>
+        <activity android:name=".TicTacToe"/>
+        <activity android:name=".Skoczek"/>
+        <activity android:name=".Skoczek2"/>
     </application>
 
 </manifest>
