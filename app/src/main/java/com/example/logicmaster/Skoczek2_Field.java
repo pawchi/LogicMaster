@@ -27,4 +27,5 @@ public class Skoczek2_Field {
     public void setPossibleMoves(ArrayList<Integer> possibleMoves) {
         this.possibleMoves = possibleMoves;
     }
+
 }

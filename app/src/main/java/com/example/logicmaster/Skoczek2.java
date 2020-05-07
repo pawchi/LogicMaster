@@ -1,8 +1,8 @@
 package com.example.logicmaster;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -11,11 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,13 +22,15 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
 
     public static final int NOT_CLICKED = 0;
     public static final int CLICKED = 1;
+    public static final int MOVE_POSSIBLE = 2;
 
-    public static final int COLOR_POSSIBLE_MOVE = Color.MAGENTA;
+    public static final int COLOR_MOVE_POSSIBLE = Color.MAGENTA;
     public static final int COLOR_CLICKED = Color.GREEN;
     public static final int COLOR_NOT_CLICKED = Color.BLUE;
 
     Map<Integer,Skoczek2_Field> board = new HashMap<>();
     public ArrayList<ArrayList<Integer>> arrayMoves = new ArrayList<>();
+    public int firstClik = 0;
 
 
     int fieldEmpty = Color.BLUE;
@@ -86,7 +85,7 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
         }
 
 
-        Toast.makeText(this, "Board 0 moves size: " + board.get(7).getPossibleMoves().size() , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Board 0 moves size: " + board.get(7).getPossibleMoves().size() , Toast.LENGTH_SHORT).show();
 
 
 
@@ -99,26 +98,39 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
         int viewCell = v.getId();
         int boardField = viewCell-1;
 
+        //Board
+        //Colors
+
         setCurrentFieldStatus(v);
 
-        Toast.makeText(this, "Get Id :" + v.getId() , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Get Id :" + v.getId() , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Get board field :" + board.get(v.getId()).getFieldStatus() , Toast.LENGTH_SHORT).show();
         // 1) if status NOT CLICKED
-        if (board.get(boardField).getFieldStatus()==NOT_CLICKED){
-            board.get(boardField).setFieldStatus(CLICKED);
-            v.setBackgroundColor(Color.GREEN);
-            showPossibleMoves(v);
+        if (firstClik==0){
+            board.get(boardField).setFieldStatus(CLICKED); //BOARD
+            v.setBackgroundColor(Color.GREEN); //TEMPORARY
+            showAndSetPossibleMoves(v); //TEMPORARY
+            removeFieldFromPossibleMoves(boardField);
+            //setPossibleMovesStatus as MOVE_POSSIBLE
+            firstClik=1;
         } else {
-            AlertDialog alertDialog = new AlertDialog.Builder(Skoczek2.this).create();
-            alertDialog.setTitle("Alert");
-            alertDialog.setMessage("To pole jest już kliknięte!!");
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+            if (board.get(boardField).getFieldStatus()==NOT_CLICKED ){ // && backgroundColor == color
+                board.get(boardField).setFieldStatus(CLICKED);
+                v.setBackgroundColor(Color.GREEN);
+                showAndSetPossibleMoves(v);
+            } //else {
+//                AlertDialog alertDialog = new AlertDialog.Builder(Skoczek2.this).create();
+//                alertDialog.setMessage("Ten ruch nie jest możliwy.");
+//                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.dismiss();
+//                            }
+//                        });
+//                alertDialog.show();
+//            }
         }
+
         String possibleValues = "";
 
         for (int i = 0; i < board.get(boardField).getPossibleMoves().size(); i++){
@@ -128,26 +140,47 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
 
     }
 
-    public void setCurrentFieldStatus(View view){
+    public void removeFieldFromPossibleMoves(int boardField){
+        for (int i=0; i<board.size(); i++){
+            for (int x=0; x < board.get(i).getPossibleMoves().size(); x++){
+                if (board.get(i).getPossibleMoves().get(x)==boardField){
+                    board.get(i).getPossibleMoves().remove(x);
+                }
+            }
+        }
+    }
 
+    public void setCurrentFieldStatus(View view){
         for (int i=0; i<board.size(); i++){
             if (board.get(i).getFieldStatus()==CLICKED){
                 gridLayout.getChildAt(i).setBackgroundColor(COLOR_CLICKED);
-            } else {
+            } else if (board.get(i).getFieldStatus()==NOT_CLICKED){
                 gridLayout.getChildAt(i).setBackgroundColor(COLOR_NOT_CLICKED);
+            } else {
+                gridLayout.getChildAt(i).setBackgroundColor(COLOR_MOVE_POSSIBLE);
             }
-
         }
     }
-    private void showPossibleMoves(View view) {
+
+    private void showAndSetPossibleMoves(View view) {
         int viewCell = view.getId();
         int boardField = viewCell-1;
         for (int i : board.get(boardField).getPossibleMoves()){
             if (board.get(i-1).getFieldStatus()==NOT_CLICKED){
-                gridLayout.getChildAt(i-1).setBackgroundColor(COLOR_POSSIBLE_MOVE);
+                gridLayout.getChildAt(i-1).setBackgroundColor(COLOR_MOVE_POSSIBLE);
+                //board.get(i-1).setFieldStatus(MOVE_POSSIBLE);
             }
 
         }
+    }
+
+    private void updateBoardFields(View view){
+
+    }
+
+    private void setPossibleMoveStatus(View view){
+        int position = view.getId();
+        board.get(view.getId()).setFieldStatus(MOVE_POSSIBLE);
     }
 
     public void setListWithPossibleMoves(){
@@ -180,6 +213,10 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
         arrayMoves.add(new ArrayList<Integer>(Arrays.asList(12,14,16,20)));
         arrayMoves.add(new ArrayList<Integer>(Arrays.asList(13,15,17)));
         arrayMoves.add(new ArrayList<Integer>(Arrays.asList(14,18)));
+    }
+
+    public void updateListWithPossibleMoves(){
+
     }
 
 
