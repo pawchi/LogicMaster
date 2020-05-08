@@ -2,7 +2,6 @@ package com.example.logicmaster;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.PaintDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -31,10 +30,6 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
     Map<Integer,Skoczek2_Field> board = new HashMap<>();
     public ArrayList<ArrayList<Integer>> arrayMoves = new ArrayList<>();
     public int firstClik = 0;
-
-
-    int fieldEmpty = Color.BLUE;
-
 
 
     GridLayout gridLayout;
@@ -71,7 +66,7 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
             param.columnSpec = GridLayout.spec(c);
             param.rowSpec = GridLayout.spec(r);
             textView.setLayoutParams(param);
-            textView.setBackgroundColor(fieldEmpty);
+            textView.setBackgroundColor(COLOR_NOT_CLICKED);
             textView.setGravity(Gravity.CENTER);
             textView.setOnClickListener(this);
             textView.setText(Integer.toString(i+1));
@@ -95,28 +90,30 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
     public void onClick(View v) {
         TextView textView = (TextView)findViewById(getResources().getIdentifier(Integer.toString(v.getId()),"id",getPackageName()));
         ColorDrawable textColor = (ColorDrawable) textView.getBackground();
-        int viewCell = v.getId();
+        ColorDrawable itemColor = (ColorDrawable)v.getBackground();
+
+        Toast.makeText(this, "Id  "+v.getId(), Toast.LENGTH_SHORT).show();
+        int viewCell = v.getId(); //1-25
         int boardField = viewCell-1;
 
-        //Board
-        //Colors
+        //cancelDisplayOldPossibleFields();
+        //setWholeBoardColors(v); //current board view
 
-        setCurrentFieldStatus(v);
 
-        //Toast.makeText(this, "Get Id :" + v.getId() , Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "Get board field :" + board.get(v.getId()).getFieldStatus() , Toast.LENGTH_SHORT).show();
-        // 1) if status NOT CLICKED
         if (firstClik==0){
             board.get(boardField).setFieldStatus(CLICKED); //BOARD
             v.setBackgroundColor(Color.GREEN); //TEMPORARY
             showAndSetPossibleMoves(v); //TEMPORARY
-            removeFieldFromPossibleMoves(boardField);
-            //setPossibleMovesStatus as MOVE_POSSIBLE
+            removeFieldFromPossibleMoves(viewCell);
+            //setPossibleMoveStatus(v);//setPossibleMovesStatus as MOVE_POSSIBLE
             firstClik=1;
         } else {
-            if (board.get(boardField).getFieldStatus()==NOT_CLICKED ){ // && backgroundColor == color
+            if ( itemColor.getColor()==COLOR_MOVE_POSSIBLE){ //board.get(boardField).getFieldStatus()==NOT_CLICKED &&
+                cancelDisplayOldPossibleFields();//
                 board.get(boardField).setFieldStatus(CLICKED);
                 v.setBackgroundColor(Color.GREEN);
+                removeFieldFromPossibleMoves(viewCell);
+
                 showAndSetPossibleMoves(v);
             } //else {
 //                AlertDialog alertDialog = new AlertDialog.Builder(Skoczek2.this).create();
@@ -131,13 +128,22 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
 //            }
         }
 
-        String possibleValues = "";
+//        String possibleValues = "";
+//
+//        for (int i = 0; i < board.get(boardField).getPossibleMoves().size(); i++){
+//            possibleValues = possibleValues + board.get(boardField).getPossibleMoves().get(i) + ", ";
+//        }
 
-        for (int i = 0; i < board.get(boardField).getPossibleMoves().size(); i++){
-            possibleValues = possibleValues + board.get(boardField).getPossibleMoves().get(i) + ", ";
+
+    }
+
+    private void cancelDisplayOldPossibleFields() {
+        for (int i=0; i<gridLayout.getChildCount(); i++){
+            ColorDrawable itemColor = (ColorDrawable)gridLayout.getChildAt(i).getBackground();
+            if (itemColor.getColor()==COLOR_MOVE_POSSIBLE){
+                itemColor.setColor(COLOR_NOT_CLICKED);
+            }
         }
-
-
     }
 
     public void removeFieldFromPossibleMoves(int boardField){
@@ -150,16 +156,27 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
         }
     }
 
-    public void setCurrentFieldStatus(View view){
+    public void setWholeBoardColors(View view){
         for (int i=0; i<board.size(); i++){
-            if (board.get(i).getFieldStatus()==CLICKED){
-                gridLayout.getChildAt(i).setBackgroundColor(COLOR_CLICKED);
-            } else if (board.get(i).getFieldStatus()==NOT_CLICKED){
-                gridLayout.getChildAt(i).setBackgroundColor(COLOR_NOT_CLICKED);
-            } else {
-                gridLayout.getChildAt(i).setBackgroundColor(COLOR_MOVE_POSSIBLE);
+            switch (board.get(i).getFieldStatus()){
+                case CLICKED: gridLayout.getChildAt(i).setBackgroundColor(COLOR_CLICKED);
+                break;
+                case NOT_CLICKED: gridLayout.getChildAt(i).setBackgroundColor(COLOR_NOT_CLICKED);
+                break;
+                case MOVE_POSSIBLE: gridLayout.getChildAt(i).setBackgroundColor(COLOR_MOVE_POSSIBLE);
+                break;
             }
         }
+
+//        for (int i=0; i<board.size(); i++){
+//            if (board.get(i).getFieldStatus()==CLICKED){
+//                gridLayout.getChildAt(i).setBackgroundColor(COLOR_CLICKED);
+//            } else if (board.get(i).getFieldStatus()==NOT_CLICKED){
+//                gridLayout.getChildAt(i).setBackgroundColor(COLOR_NOT_CLICKED);
+//            } else {
+//                gridLayout.getChildAt(i).setBackgroundColor(COLOR_MOVE_POSSIBLE);
+//            }
+//        }
     }
 
     private void showAndSetPossibleMoves(View view) {
@@ -168,7 +185,7 @@ public class Skoczek2 extends AppCompatActivity implements View.OnClickListener 
         for (int i : board.get(boardField).getPossibleMoves()){
             if (board.get(i-1).getFieldStatus()==NOT_CLICKED){
                 gridLayout.getChildAt(i-1).setBackgroundColor(COLOR_MOVE_POSSIBLE);
-                //board.get(i-1).setFieldStatus(MOVE_POSSIBLE);
+                board.get(i-1).setFieldStatus(MOVE_POSSIBLE);
             }
 
         }
